@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+
+# Virtualenv
+venv/
+env/
+
+# Playwright test artifacts
+test-artifacts/
+
+# Editor files
+*.sublime-project
+*.sublime-workspace
+.vscode/

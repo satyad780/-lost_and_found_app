@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Item</title>
+    <link rel="stylesheet" href="{% static 'items/css/style.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; background: #000; border: 1px solid #1a1a1a; border-radius: 8px; }
+        .input-box { width: 100%; padding: 12px; background: #000; border: 1px solid #1a1a1a; color: #fff; border-radius: 4px; margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h1>📍 TRACKER</h1>
+        <nav class="nav-links"><a href="/">Dashboard</a></nav>
+    </aside>
+
+    <main>
+        <h1 style="margin-bottom: 30px;">Report Found Item</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px;">
+                <div>
+                    <input type="text" name="name" class="input-box" placeholder="Item Name" required style="margin-top:0;">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" name="finder_name" class="input-box" placeholder="Your Name" required>
+                        <input type="tel" name="finder_contact" class="input-box" placeholder="Phone Number" required>
+                    </div>
+                    <select name="category" class="input-box" required>
+                        {% for v, l in categories %}<option value="{{ v }}">{{ l }}</option>{% endfor %}
+                    </select>
+                    <textarea name="description" class="input-box" placeholder="Details..." style="height: 100px;"></textarea>
+                    <input type="file" name="image" required style="margin-top:15px; font-size: 12px; color: #737373;">
+                </div>
+                <div>
+                    <div id="map"></div>
+                    <input type="hidden" id="lat" name="latitude">
+                    <input type="hidden" id="lng" name="longitude">
+                </div>
+            </div>
+            <button type="submit" class="btn-report" style="margin-top: 30px; border: none; cursor: pointer;">Submit Report</button>
+        </form>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([23.2599, 77.4126], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png').addTo(map);
+        let marker = L.marker([23.2599, 77.4126], { draggable: true }).addTo(map);
+        function update(lt, lg) {
+            document.getElementById('lat').value = lt.toFixed(6);
+            document.getElementById('lng').value = lg.toFixed(6);
+        }
+        marker.on('dragend', (e) => update(e.target.getLatLng().lat, e.target.getLatLng().lng));
+        map.on('click', (e) => { marker.setLatLng(e.latlng); update(e.latlng.lat, e.latlng.lng); });
+    </script>
+</body>
+</html>

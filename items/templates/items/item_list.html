@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tracker</title>
+    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=2">
+</head>
+<body>
+    <aside class="sidebar">
+        <h1>📍 TRACKER</h1>
+        <nav class="nav-links">
+            <a href="/" class="active">View All</a>
+            {% for v, l in categories %}<a href="?category={{ v }}">{{ l }}</a>{% endfor %}
+        </nav>
+    </aside>
+
+    <main>
+        <div class="top-bar">
+            <input type="text" class="search-bar" placeholder="Find an item...">
+            <a href="{% url 'upload_item' %}" class="btn-report" data-buffer-seconds="3" data-fetch-timeout-ms="10000" aria-live="polite">
+                <span class="btn-label">+ Report Item</span>
+            </a>
+        <div class="items-grid">
+            {% for item in items %}
+            <div class="card">
+                <div class="card-header">
+                    <span class="category-label">{{ item.category }}</span>
+                    <a href="{% url 'delete_item' item.id %}" class="remove-btn">REMOVE</a>
+                </div>
+
+                <h2 style="font-size: 24px; font-weight: 800;">{{ item.name }}</h2>
+                
+                <p style="font-size: 12px; color: #737373; margin-top: 4px;">
+                    Found by <span style="color: #fff;">{{ item.finder_name }}</span> | 📞 {{ item.finder_contact }}
+                </p>
+
+                {% if item.image %}<img src="{{ item.image.url }}" class="card-img">{% endif %}
+
+                <p style="color: #888; font-size: 14px; margin-bottom: 20px;">{{ item.description }}</p>
+
+                <a href="https://www.google.com/maps?q={{ item.latitude }},{{ item.longitude }}" target="_blank" class="view-map-btn">VIEW ON MAP</a>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Full-page loading overlay (hidden by default) -->
+    <div id="page-loader" class="page-loader" aria-hidden="true" role="status" aria-live="polite">
+        <div class="loader-inner">
+            <div class="loader-bar" aria-hidden="true"></div>
+            <p class="loader-text">Loading page…</p>
+            <button class="loader-cancel" type="button" aria-label="Cancel loading">Cancel</button>
+        </div>
+    </div>
+
+    <script src="{% static 'items/js/button-buffer.js' %}"></script>
+</body>
+</html>
