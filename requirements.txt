@@ -10,4 +10,3 @@ gunicorn
 dj-database-url
 psycopg2-binary
 Pillow
-django-csp==3.7.1

@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'items',
-    'csp',  # django-csp for Content Security Policy
 ]
 
 MIDDLEWARE = [
@@ -59,14 +58,10 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'csp.middleware.CSPMiddleware',  # django-csp middleware (moved to end)
+    'core.middleware.CustomCSPMiddleware',  # Custom CSP middleware
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Content Security Policy settings for django-csp < 4.0
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_OBJECT_SRC = ("'none'",)
-CSP_SCRIPT_SRC = ("'self'",)
 
 ROOT_URLCONF = 'core.urls'
 
