@@ -41,6 +41,8 @@ def item_list(request):
 def upload_item(request):
     if request.method == 'POST':
         # Capture all fields including new finder details
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
         RecoveredItem.objects.create(
             name=request.POST.get('name'),
             finder_name=request.POST.get('finder_name'),
@@ -48,8 +50,8 @@ def upload_item(request):
             category=request.POST.get('category'),
             description=request.POST.get('description'),
             image=request.FILES.get('image'),
-            latitude=request.POST.get('latitude'),
-            longitude=request.POST.get('longitude')
+            latitude=latitude if latitude else None,
+            longitude=longitude if longitude else None
         )
         return redirect('item_list')
     return render(request, 'items/upload.html', {'categories': RecoveredItem.CATEGORIES})
