@@ -1,7 +1,9 @@
 from django.http import HttpResponse
 # Simple view to test CSP headers
 def test_csp(request):
-    return HttpResponse("CSP header test page.")
+    response = HttpResponse("CSP header test page.")
+    response["X-Test-Header"] = "deployed"
+    return response
 import math
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import RecoveredItem
