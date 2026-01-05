@@ -63,14 +63,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Minimal Content Security Policy for django-csp >= 4.0
-CSP_DIRECTIVES = {
-    "default-src": ["'self'"],
-    "object-src": ["'none'"],
-    "script-src": ["'self'"],
-    # Optionally, add Trusted Types for extra security:
-    # "require-trusted-types-for": ["'script'"],
-}
+# Content Security Policy settings for django-csp < 4.0
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_OBJECT_SRC = ("'none'",)
+CSP_SCRIPT_SRC = ("'self'",)
 
 ROOT_URLCONF = 'core.urls'
 
