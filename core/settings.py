@@ -1,3 +1,7 @@
+# Allow CSRF from Railway domain
+CSRF_TRUSTED_ORIGINS = [
+    'https://heartfelt-creativity-djangodebug.up.railway.app'
+]
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Add missing import for dj_database_url
