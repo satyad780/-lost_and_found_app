@@ -1,12 +1,42 @@
 /* RESET EVERYTHING */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: #000000; /* PURE BLACK */
     color: #ffffff;
     display: flex;
     min-height: 100vh;
+}
+
+@media (max-width: 800px) {
+    body {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #1a1a1a;
+        padding: 24px 12px;
+        text-align: center;
+    }
+    main {
+        padding: 16px 4vw;
+    }
+    .top-bar {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    .search-bar {
+        margin-right: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* SIDEBAR - PURE BLACK */
