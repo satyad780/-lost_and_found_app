@@ -66,6 +66,10 @@ MIDDLEWARE = [
 # Minimal Content Security Policy for django-csp >= 4.0
 CSP_DIRECTIVES = {
     "default-src": ["'self'"],
+    "object-src": ["'none'"],
+    "script-src": ["'self'"],
+    # Optionally, add Trusted Types for extra security:
+    # "require-trusted-types-for": ["'script'"],
 }
 
 ROOT_URLCONF = 'core.urls'
