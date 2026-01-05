@@ -57,9 +57,9 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'csp.middleware.CSPMiddleware',  # django-csp middleware
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'csp.middleware.CSPMiddleware',  # django-csp middleware (moved to end)
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
