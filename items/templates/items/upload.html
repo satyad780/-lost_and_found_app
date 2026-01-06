@@ -18,30 +18,28 @@
     </aside>
 
     <main>
-        <h1 style="margin-bottom: 30px;">Report Found Item</h1>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px;">
-                <div>
-                    <input type="text" name="name" class="input-box" placeholder="Item Name" required style="margin-top:0;">
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" name="finder_name" class="input-box" placeholder="Your Name" required>
-                        <input type="tel" name="finder_contact" class="input-box" placeholder="Phone Number" required>
-                    </div>
-                    <select name="category" class="input-box" required>
+        <div class="report-form-container">
+            <h1>Report Found Item</h1>
+            <form method="POST" enctype="multipart/form-data" class="report-form">
+                {% csrf_token %}
+                <div class="form-row">
+                    <input type="text" name="name" placeholder="Item Name" required>
+                    <input type="text" name="finder_name" placeholder="Your Name" required>
+                </div>
+                <div class="form-row">
+                    <input type="tel" name="finder_contact" placeholder="Phone Number" required>
+                    <select name="category" required>
                         {% for v, l in categories %}<option value="{{ v }}">{{ l }}</option>{% endfor %}
                     </select>
-                    <textarea name="description" class="input-box" placeholder="Details..." style="height: 100px;"></textarea>
-                    <input type="file" name="image" required style="margin-top:15px; font-size: 12px; color: #737373;">
                 </div>
-                <div>
-                    <div id="map"></div>
-                    <input type="hidden" id="lat" name="latitude">
-                    <input type="hidden" id="lng" name="longitude">
-                </div>
-            </div>
-            <button type="submit" class="btn-report" style="margin-top: 30px; border: none; cursor: pointer;">Submit Report</button>
-        </form>
+                <textarea name="description" placeholder="Details..."></textarea>
+                <input type="file" name="image" required>
+                <div id="map" style="margin-top: 18px;"></div>
+                <input type="hidden" id="lat" name="latitude">
+                <input type="hidden" id="lng" name="longitude">
+                <button type="submit">Submit Report</button>
+            </form>
+        </div>
     </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
