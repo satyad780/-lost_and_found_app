@@ -307,4 +307,310 @@ main > * {
     }
 }
 
-/* ...existing code... */
+/* RESET EVERYTHING */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #000000; /* PURE BLACK */
+    color: #ffffff;
+    display: flex;
+    min-height: 100vh;
+}
+
+@media (max-width: 800px) {
+    body {
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    .sidebar {
+        width: 100vw;
+        border: none;
+        padding: 18px 0 12px 0;
+        text-align: center;
+        background: #111;
+        margin-bottom: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .sidebar h1 {
+        margin-bottom: 18px;
+        font-size: 22px;
+    }
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 24px;
+        flex-shrink: 0;
+    }
+}
+
+.sidebar h1 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+}
+
+.nav-links a {
+    display: block;
+    padding: 12px 16px;
+    color: #737373;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.nav-links a.active, .nav-links a:hover {
+    background: #111111; /* DARK CHARCOAL ONLY */
+    color: #ffffff;
+}
+
+/* MAIN DASHBOARD */
+main {
+    flex-grow: 1;
+    padding: 40px;
+    background-color: #080808; /* SLIGHTLY OFF-BLACK FOR CONTRAST */
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle animated background: soft color blobs that slowly drift */
+main::before {
+    content: "";
+    position: absolute;
+    inset: -20% -20%;
+    background:
+        radial-gradient(circle at 18% 22%, rgba(16,185,129,0.06), transparent 12%),
+        radial-gradient(circle at 82% 78%, rgba(59,130,246,0.05), transparent 12%),
+        radial-gradient(circle at 50% 54%, rgba(99,102,241,0.03), transparent 18%);
+    filter: blur(28px);
+    transform: translate3d(0,0,0);
+    animation: bgDrift 20s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0.9;
+}
+
+/* Ensure content stays above the animated background */
+main > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes bgDrift {
+    0% { transform: translate3d(-2%, 0, 0) scale(1); }
+    50% { transform: translate3d(2%, -1%, 0) scale(1.02); }
+    100% { transform: translate3d(-2%, 0, 0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    main::before {
+        animation: none !important;
+        opacity: 0.5;
+        filter: blur(18px);
+    }
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.search-bar {
+    flex: 1;
+    max-width: 800px;
+    background: #000000;
+    border: 1px solid #1a1a1a;
+    padding: 14px 20px;
+    color: #ffffff;
+    border-radius: 4px;
+    margin-right: 20px;
+}
+
+.btn-report, .btn-primary {
+    background: #ffffff;
+    color: #000000;
+    padding: 12px 24px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    display: inline-block;
+    position: relative;
+    transition: transform 220ms cubic-bezier(0.2,0.8,0.2,1), box-shadow 220ms, opacity 180ms;
+    will-change: transform, box-shadow, opacity;
+}
+
+.btn-report:hover, .btn-primary:hover, .btn-report:focus, .btn-primary:focus {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+}
+
+.btn-report:active, .btn-primary:active {
+    transform: translateY(-2px) scale(0.99);
+}
+
+/* Full page loading overlay instead of inline spinner */
+.page-loader {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.56);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity 220ms ease, visibility 220ms ease, transform 220ms ease;
+    z-index: 9999;
+}
+
+.page-loader.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.page-loader .loader-inner {
+    text-align: center;
+    color: #ffffff;
+}
+
+.page-loader .loader-bar {
+    width: 240px;
+    height: 8px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.26) 50%, rgba(255,255,255,0.06) 100%);
+    background-size: 200% 100%;
+    animation: progress 1.6s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes progress {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.page-loader .loader-text {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #eaeaea;
+    font-weight: 700;
+}
+
+/* Cancel button for loader */
+.loader-cancel {
+    margin-top: 12px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    transition: background 160ms, transform 120ms;
+}
+
+.loader-cancel:hover, .loader-cancel:focus {
+    background: rgba(255,255,255,0.04);
+    transform: translateY(-2px);
+}
+
+.loader-cancel:active { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+    .loader-cancel { transition: none !important; }
+}
+
+/* Keep the old class for compatibility, but rely on page loader overlay */
+.btn-report.is-buffering { pointer-events: none; opacity: 0.9; }
+.btn-report.is-buffering .btn-label { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+    .page-loader .loader-bar { animation: none !important; }
+}
+
+/* CARD LAYOUT - REMOVE ON FAR RIGHT */
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: #111111;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.category-label {
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.remove-btn {
+    font-size: 10px;
+    color: #404040;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.card-img {
+    width: 100%;
+    height: 240px;
+    object-fit: contain;
+    background: #ffffff;
+    border-radius: 6px;
+    margin: 16px 0;
+}
+
+.view-map-btn, .btn-success {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    border: 1px solid #10b981;
+    color: #10b981;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: transform 200ms cubic-bezier(0.2,0.8,0.2,1), background 200ms, color 200ms;
+    will-change: transform, background;
+    position: relative;
+}
+
+.view-map-btn:hover, .btn-success:hover, .view-map-btn:focus, .btn-success:focus {
+    transform: translateY(-4px) scale(1.01);
+    background: linear-gradient(90deg, rgba(16,185,129,0.08), transparent);
+    color: #000;
+}
+
+.view-map-btn:active, .btn-success:active { transform: translateY(-1px) scale(0.99); }
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-report, .btn-primary, .view-map-btn, .btn-success {
+        transition: none !important;
+        transform: none !important;
+    }
+}
