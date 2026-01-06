@@ -9,6 +9,10 @@ __pycache__/
 local_settings.py
 db.sqlite3
 
+# Environment variables and media uploads
+.env
+media/
+
 # Virtualenv
 venv/
 env/
