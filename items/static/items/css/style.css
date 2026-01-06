@@ -64,13 +64,29 @@ body {
     .search-bar {
         margin-right: 0;
         width: 100%;
-        max-width: 100%;
-    }
+        max-width: 98vw;
+        padding: 24px 12px;
+        font-size: 1.15rem;
     .items-grid {
         grid-template-columns: 1fr;
     }
 }
 
+    .report-form .form-row {
+        flex-direction: column;
+        gap: 14px;
+    }
+    .report-form input[type="text"],
+    .report-form input[type="file"],
+    .report-form select,
+    .report-form textarea {
+        font-size: 1.1rem;
+        padding: 12px 14px;
+    }
+    .report-form button[type="submit"] {
+        font-size: 1.15rem;
+        padding: 12px 0;
+    }
 /* SIDEBAR - PURE BLACK */
 .sidebar {
     width: 260px;
