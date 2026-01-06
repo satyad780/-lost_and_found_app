@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tracker</title>
-    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=2">
+    <title>Tracker — Dashboard</title>
+    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=3">
 </head>
 <body>
     <aside class="sidebar">
@@ -19,42 +19,40 @@
     <main>
         <div class="top-bar">
             <input type="text" class="search-bar" placeholder="Find an item...">
-            <a href="{% url 'upload_item' %}" class="btn-report" data-buffer-seconds="3" data-fetch-timeout-ms="10000" aria-live="polite">
-                <span class="btn-label">+ Report Item</span>
-            </a>
+            <a href="{% url 'upload_item' %}" class="btn btn-primary">+ Report Item</a>
+        </div>
+
         <div class="items-grid">
             {% for item in items %}
             <div class="card">
-                <div class="card-header">
-                    <span class="category-label">{{ item.category }}</span>
-                    <a href="{% url 'delete_item' item.id %}" class="remove-btn">REMOVE</a>
+                <div class="card-header" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span class="status-badge" style="margin-bottom: 0;">{{ item.category }}</span>
+                    <a href="{% url 'delete_item' item.id %}" class="btn" style="color: #444; font-size: 10px; padding: 0;" onclick="return confirm('Delete?')">REMOVE</a>
                 </div>
 
-                <h2 style="font-size: 24px; font-weight: 800;">{{ item.name }}</h2>
+                <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">{{ item.name }}</h2>
                 
-                <p style="font-size: 12px; color: #737373; margin-top: 4px;">
-                    Found by <span style="color: #fff;">{{ item.finder_name }}</span> | 📞 {{ item.finder_contact }}
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">
+                    Found by <span style="color: #fff;">{{ item.finder_name }}</span>
                 </p>
 
                 {% if item.image %}<img src="{{ item.image.url }}" class="card-img">{% endif %}
 
-                <p style="color: #888; font-size: 14px; margin-bottom: 20px;">{{ item.description }}</p>
+                <p style="color: #888; font-size: 14px; margin-bottom: 20px; line-height: 1.4;">
+                    {{ item.description|truncatewords:15 }}
+                </p>
 
-                <a href="https://www.google.com/maps?q={{ item.latitude }},{{ item.longitude }}" target="_blank" class="view-map-btn">VIEW ON MAP</a>
+                <div style="display: flex; gap: 8px;">
+                    <a href="{% url 'item_detail' item.id %}" class="btn btn-outline" style="flex: 1;">DETAILS</a>
+                    <a href="https://www.google.com/maps?q={{ item.latitude }},{{ item.longitude }}" target="_blank" class="btn btn-outline" style="padding: 12px;">📍</a>
+                </div>
             </div>
             {% endfor %}
         </div>
     </main>
 
-    <!-- Full-page loading overlay (hidden by default) -->
-    <div id="page-loader" class="page-loader" aria-hidden="true" role="status" aria-live="polite">
-        <div class="loader-inner">
-            <div class="loader-bar" aria-hidden="true"></div>
-            <p class="loader-text">Loading page…</p>
-            <button class="loader-cancel" type="button" aria-label="Cancel loading">Cancel</button>
-        </div>
+    <div id="page-loader" class="page-loader">
+        <div class="loader-line"></div>
     </div>
-
-    <script src="{% static 'items/js/button-buffer.js' %}"></script>
 </body>
 </html>

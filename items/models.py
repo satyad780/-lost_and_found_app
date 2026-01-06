@@ -21,8 +21,8 @@ class RecoveredItem(models.Model):
     finder_contact = models.CharField(max_length=20)
     
     # Location Data
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
 
