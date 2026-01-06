@@ -32,66 +32,7 @@ body {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 6px;
-    }
-    .nav-links a {
-        display: block;
-        margin: 0 auto;
-        padding: 12px 0;
-        font-size: 16px;
-        width: 92vw;
-        max-width: 340px;
-        border-radius: 8px;
-        background: #181818;
-        color: #ccc;
-    }
-    .nav-links a.active, .nav-links a:hover {
-        background: #222;
-        color: #fff;
-    }
-    main {
-        padding: 10px 2vw 20px 2vw;
-        background: #080808;
-        min-height: 60vh;
-        width: 100vw;
-        box-sizing: border-box;
-    }
-    .top-bar {
-        flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
-    }
-    .search-bar {
-        margin-right: 0;
-        width: 100%;
-        max-width: 98vw;
-        padding: 24px 12px;
-        font-size: 1.15rem;
-    .items-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-    .report-form .form-row {
-        flex-direction: column;
-        gap: 14px;
-    }
-    .report-form input[type="text"],
-    .report-form input[type="file"],
-    .report-form select,
-    .report-form textarea {
-        font-size: 1.1rem;
-        padding: 12px 14px;
-    }
-    .report-form button[type="submit"] {
-        font-size: 1.15rem;
-        padding: 12px 0;
-    }
-/* SIDEBAR - PURE BLACK */
-.sidebar {
-    width: 260px;
-    background: #000000;
-    border-right: 1px solid #1a1a1a;
+        /* Removed global mobile styles that affected layout */
     padding: 40px 24px;
     flex-shrink: 0;
 }
@@ -363,5 +304,109 @@ main > * {
     .btn-report, .btn-primary, .view-map-btn, .btn-success {
         transition: none !important;
         transform: none !important;
+    }
+}
+
+/* Improved Report Found Item form layout */
+.report-form-container {
+    max-width: 500px;
+    margin: 40px auto 0 auto;
+    background: rgba(30, 30, 30, 0.95);
+    padding: 32px 28px 24px 28px;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    font-size: 1rem;
+}
+
+.report-form-container h2, .report-form-container h1 {
+    color: #fff;
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.report-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.report-form label {
+    color: #fff;
+    margin-bottom: 4px;
+    font-size: 1rem;
+}
+
+.report-form input[type="text"],
+.report-form input[type="file"],
+.report-form select,
+.report-form textarea {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #222;
+    color: #fff;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.report-form input[type="file"] {
+    background: #111;
+    color: #ccc;
+}
+
+.report-form textarea {
+    min-height: 60px;
+    resize: vertical;
+}
+
+.report-form .form-row {
+    display: flex;
+    gap: 12px;
+}
+
+.report-form .form-row > * {
+    flex: 1;
+}
+
+.report-form button[type="submit"] {
+    background: #ff0055;
+    color: #fff;
+    border: none;
+    padding: 10px 0;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+.report-form button[type="submit"]:hover {
+    background: #e6004c;
+}
+
+/* Responsive for mobile: Only affect report form */
+@media (max-width: 600px) {
+    .report-form-container {
+        max-width: 98vw;
+        padding: 18px 6px;
+        font-size: 1.08rem;
+    }
+    .report-form .form-row {
+        flex-direction: column;
+        gap: 14px;
+    }
+    .report-form input[type="text"],
+    .report-form input[type="file"],
+    .report-form select,
+    .report-form textarea {
+        font-size: 1.08rem;
+        padding: 10px 10px;
+    }
+    .report-form button[type="submit"] {
+        font-size: 1.08rem;
+        padding: 10px 0;
     }
 }
