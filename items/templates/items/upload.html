@@ -1,112 +1,58 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Item</title>
-    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=3">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        #map { height: 300px; background: #000; border: 1px solid var(--border); border-radius: 8px; margin-top: 10px; }
-    </style>
-</head>
-<body>
-    <aside class="sidebar">
-        <h1>📍 TRACKER</h1>
-        <nav class="nav-links"><a href="/">Dashboard</a></nav>
-    </aside>
+<div class="form-group">
+    <label>Mark Location (Drag the pin to exact spot)</label>
+    <div id="map" style="height: 350px; border-radius: 8px; border: 1px solid var(--border);"></div>
+    
+    <input type="hidden" id="lat" name="latitude" value="23.2599">
+    <input type="hidden" id="lng" name="longitude" value="77.4126">
+</div>
 
-    <main>
-        <div class="form-container">
-            <h1 style="margin-bottom: 10px;">Report Found Item</h1>
-            <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px;">Fill in the details and mark the location on the map.</p>
-            
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label>What did you find?</label>
-                    <input type="text" name="name" class="form-control" placeholder="e.g. Black Wallet" required>
-                </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // 1. Initialize map (Default center)
+    const defaultLat = 23.2599;
+    const defaultLng = 77.4126;
+    
+    const map = L.map('map').setView([defaultLat, defaultLng], 13);
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>Your Name</label>
-                        <input type="text" name="finder_name" class="form-control" placeholder="Name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone / Contact</label>
-                        <input type="tel" name="finder_contact" class="form-control" placeholder="Phone" required>
-                    </div>
-                </div>
+    // 2. Use a Dark Theme for the map to match your UI
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-                <div class="form-group">
-                    <label>Category</label>
-                    <select name="category" class="form-control" required>
-                        {% for v, l in categories %}<option value="{{ v }}">{{ l }}</option>{% endfor %}
-                    </select>
-                </div>
+    // 3. Create the DRAGGABLE marker
+    let marker = L.marker([defaultLat, defaultLng], {
+        draggable: true,
+        autoPan: true
+    }).addTo(map);
 
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" class="form-control" placeholder="Where exactly was it found?"></textarea>
-                </div>
+    // 4. Function to update hidden inputs
+    function updateInputs(lat, lng) {
+        document.getElementById('lat').value = lat.toFixed(6);
+        document.getElementById('lng').value = lng.toFixed(6);
+        console.log(`Location updated: ${lat}, ${lng}`); // For debugging
+    }
 
-                <div class="form-group">
-                    <label>Item Image</label>
-                    <input type="file" name="image" class="form-control" required style="padding: 10px;">
-                </div>
+    // 5. Update inputs when dragging ends
+    marker.on('dragend', function (e) {
+        const position = marker.getLatLng();
+        updateInputs(position.lat, position.lng);
+    });
 
-                <div class="form-group">
-                    <label>Drop Pin at Location</label>
-                    <div id="map"></div>
-                    <input type="hidden" id="lat" name="latitude">
-                    <input type="hidden" id="lng" name="longitude">
-                </div>
+    // 6. Update inputs if the user clicks anywhere else on the map
+    map.on('click', function (e) {
+        marker.setLatLng(e.latlng);
+        updateInputs(e.latlng.lat, e.latlng.lng);
+    });
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Submit Report</button>
-            </form>
-        </div>
-    </main>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // Default map center (can be changed as needed)
-        const defaultLat = 23.2599;
-        const defaultLng = 77.4126;
-        const map = L.map('map').setView([defaultLat, defaultLng], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-        let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
-
-        function update(lt, lg) {
-            document.getElementById('lat').value = lt.toFixed(6);
-            document.getElementById('lng').value = lg.toFixed(6);
-        }
-        // Set initial values
-        update(defaultLat, defaultLng);
-
-        marker.on('dragend', (e) => {
-            const pos = e.target.getLatLng();
-            update(pos.lat, pos.lng);
+    // 7. Optional: Try to center map on user's current location once at start
+    // But still allow them to drag the pin away from there.
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            map.setView([userLat, userLng], 15);
+            marker.setLatLng([userLat, userLng]);
+            updateInputs(userLat, userLng);
         });
-        map.on('click', (e) => {
-            marker.setLatLng(e.latlng);
-            update(e.latlng.lat, e.latlng.lng);
-        });
-        // On form submit, get geolocation and override lat/lng fields
-        document.querySelector('form').addEventListener('submit', function(e) {
-            if (navigator.geolocation) {
-                e.preventDefault();
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    document.getElementById('lat').value = position.coords.latitude.toFixed(6);
-                    document.getElementById('lng').value = position.coords.longitude.toFixed(6);
-                    e.target.submit();
-                }, function() {
-                    // If user denies or error, submit with map marker value
-                    e.target.submit();
-                });
-            }
-        });
-    </script>
-</body>
-</html>
+    }
+</script>
