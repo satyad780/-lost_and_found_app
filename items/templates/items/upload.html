@@ -57,12 +57,24 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" class="form-control" placeholder="Where exactly was it found?"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Item Image</label>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <button type="button" id="openMapBtn" class="btn btn-secondary">Set Location</button>
+                                <span id="locationStatus" style="font-size:12px;color:var(--text-muted);"></span>
+                            </div>
+                            <input type="hidden" id="lat" name="latitude">
+                            <input type="hidden" id="lng" name="longitude">
+                            <div id="locationSetMsg" style="font-size:13px;color:#22c55e;margin-top:4px;display:none;">Location set!</div>
+                            <!-- Modal for map -->
+                            <div id="mapModal" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+                                <div style="background:#181818;padding:24px 16px 16px 16px;border-radius:12px;max-width:420px;width:90vw;box-shadow:0 8px 32px #000;position:relative;">
+                                    <h3 style="margin-top:0;margin-bottom:10px;font-size:18px;">Pick Location</h3>
+                                    <div id="map" style="height:300px;width:100%;border-radius:8px;"></div>
+                                    <div style="display:flex;justify-content:flex-end;margin-top:12px;gap:8px;">
+                                        <button type="button" id="cancelMapBtn" class="btn btn-secondary">Cancel</button>
+                                        <button type="button" id="setLocationBtn" class="btn btn-primary">Set Location</button>
+                                    </div>
+                                </div>
+                            </div>
                     <input type="file" name="image" class="form-control" required style="padding: 10px;">
                 </div>
 
