@@ -114,28 +114,28 @@
         showStatus();
 
         openMapBtn.addEventListener('click', function() {
-            mapModal.style.display = 'flex';
-            setTimeout(() => {
-                if (!map) {
-                    map = L.map('map').setView([pickedLat, pickedLng], 13);
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-                    marker = L.marker([pickedLat, pickedLng], { draggable: true }).addTo(map);
-                    marker.on('dragend', (e) => {
-                        const pos = e.target.getLatLng();
-                        pickedLat = pos.lat;
-                        pickedLng = pos.lng;
-                    });
-                    map.on('click', (e) => {
-                        marker.setLatLng(e.latlng);
-                        pickedLat = e.latlng.lat;
-                        pickedLng = e.latlng.lng;
-                    });
-                } else {
-                    map.invalidateSize();
-                    marker.setLatLng([pickedLat, pickedLng]);
-                    map.setView([pickedLat, pickedLng], 13);
-                }
-            }, 100);
+        mapModal.style.display = 'flex';
+        setTimeout(() => {
+            if (!map) {
+                map = L.map('map', {center: [pickedLat, pickedLng], zoom: 13});
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+                marker = L.marker([pickedLat, pickedLng], { draggable: true }).addTo(map);
+                marker.on('dragend', (e) => {
+                    const pos = e.target.getLatLng();
+                    pickedLat = pos.lat;
+                    pickedLng = pos.lng;
+                });
+                map.on('click', (e) => {
+                    marker.setLatLng(e.latlng);
+                    pickedLat = e.latlng.lat;
+                    pickedLng = e.latlng.lng;
+                });
+            } else {
+                marker.setLatLng([pickedLat, pickedLng]);
+                map.setView([pickedLat, pickedLng], 13);
+            }
+            map.invalidateSize();
+        }, 200);
         });
 
         cancelMapBtn.addEventListener('click', function() {
