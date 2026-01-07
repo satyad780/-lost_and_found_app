@@ -8,7 +8,15 @@
     <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=3">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #map { height: 300px; background: #000; border: 1px solid var(--border); border-radius: 8px; margin-top: 10px; }
+        #map {
+            height: 300px;
+            min-height: 200px;
+            background: #222 url('https://tile.openstreetmap.org/0/0/0.png') center center no-repeat;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 10px;
+            display: block;
+        }
     </style>
 </head>
 <body>
