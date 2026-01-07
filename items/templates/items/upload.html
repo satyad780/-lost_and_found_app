@@ -67,10 +67,23 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Drop Pin at Location</label>
-                    <div id="map"></div>
+                    <label>Location</label>
+                    <button type="button" id="openMapBtn" class="btn btn-secondary" style="margin-bottom:10px;">Set Location</button>
                     <input type="hidden" id="lat" name="latitude">
                     <input type="hidden" id="lng" name="longitude">
+                    <div id="locationStatus" style="font-size:12px;color:var(--text-muted);"></div>
+
+                    <!-- Modal for map -->
+                    <div id="mapModal" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+                        <div style="background:#181818;padding:24px 16px 16px 16px;border-radius:12px;max-width:420px;width:90vw;box-shadow:0 8px 32px #000;position:relative;">
+                            <h3 style="margin-top:0;margin-bottom:10px;font-size:18px;">Pick Location</h3>
+                            <div id="map" style="height:300px;width:100%;border-radius:8px;"></div>
+                            <div style="display:flex;justify-content:flex-end;margin-top:12px;gap:8px;">
+                                <button type="button" id="cancelMapBtn" class="btn btn-secondary">Cancel</button>
+                                <button type="button" id="setLocationBtn" class="btn btn-primary">Set Location</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Submit Report</button>
@@ -81,27 +94,59 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Default map center (can be changed as needed)
-        const defaultLat = 23.2599;
-        const defaultLng = 77.4126;
-        const map = L.map('map').setView([defaultLat, defaultLng], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-        let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+        const openMapBtn = document.getElementById('openMapBtn');
+        const mapModal = document.getElementById('mapModal');
+        const cancelMapBtn = document.getElementById('cancelMapBtn');
+        const setLocationBtn = document.getElementById('setLocationBtn');
+        const latInput = document.getElementById('lat');
+        const lngInput = document.getElementById('lng');
+        const locationStatus = document.getElementById('locationStatus');
+        let map, marker;
+        let pickedLat = 23.2599, pickedLng = 77.4126;
 
-        function update(lt, lg) {
-            document.getElementById('lat').value = lt.toFixed(6);
-            document.getElementById('lng').value = lg.toFixed(6);
+        function showStatus() {
+            if (latInput.value && lngInput.value) {
+                locationStatus.textContent = `Location set: (${latInput.value}, ${lngInput.value})`;
+            } else {
+                locationStatus.textContent = 'No location set.';
+            }
         }
-        // Set initial values
-        update(defaultLat, defaultLng);
+        showStatus();
 
-        marker.on('dragend', (e) => {
-            const pos = e.target.getLatLng();
-            update(pos.lat, pos.lng);
+        openMapBtn.addEventListener('click', function() {
+            mapModal.style.display = 'flex';
+            setTimeout(() => {
+                if (!map) {
+                    map = L.map('map').setView([pickedLat, pickedLng], 13);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+                    marker = L.marker([pickedLat, pickedLng], { draggable: true }).addTo(map);
+                    marker.on('dragend', (e) => {
+                        const pos = e.target.getLatLng();
+                        pickedLat = pos.lat;
+                        pickedLng = pos.lng;
+                    });
+                    map.on('click', (e) => {
+                        marker.setLatLng(e.latlng);
+                        pickedLat = e.latlng.lat;
+                        pickedLng = e.latlng.lng;
+                    });
+                } else {
+                    map.invalidateSize();
+                    marker.setLatLng([pickedLat, pickedLng]);
+                    map.setView([pickedLat, pickedLng], 13);
+                }
+            }, 100);
         });
-        map.on('click', (e) => {
-            marker.setLatLng(e.latlng);
-            update(e.latlng.lat, e.latlng.lng);
+
+        cancelMapBtn.addEventListener('click', function() {
+            mapModal.style.display = 'none';
+        });
+
+        setLocationBtn.addEventListener('click', function() {
+            latInput.value = pickedLat.toFixed(6);
+            lngInput.value = pickedLng.toFixed(6);
+            showStatus();
+            mapModal.style.display = 'none';
         });
     });
     </script>
