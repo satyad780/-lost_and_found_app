@@ -72,6 +72,7 @@
                     <input type="hidden" id="lat" name="latitude">
                     <input type="hidden" id="lng" name="longitude">
                     <div id="locationStatus" style="font-size:12px;color:var(--text-muted);"></div>
+                    <div id="locationSetMsg" style="font-size:13px;color:#22c55e;margin-top:4px;display:none;">Location set!</div>
 
                     <!-- Modal for map -->
                     <div id="mapModal" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
@@ -101,52 +102,52 @@
         const latInput = document.getElementById('lat');
         const lngInput = document.getElementById('lng');
         const locationStatus = document.getElementById('locationStatus');
-        let map, marker;
+        const locationSetMsg = document.getElementById('locationSetMsg');
         let pickedLat = 23.2599, pickedLng = 77.4126;
 
         function showStatus() {
             if (latInput.value && lngInput.value) {
                 locationStatus.textContent = `Location set: (${latInput.value}, ${lngInput.value})`;
+                locationSetMsg.style.display = '';
             } else {
                 locationStatus.textContent = 'No location set.';
+                locationSetMsg.style.display = 'none';
             }
         }
         showStatus();
 
         openMapBtn.addEventListener('click', function() {
-        mapModal.style.display = 'flex';
-        setTimeout(() => {
-            if (!map) {
-                map = L.map('map', {center: [pickedLat, pickedLng], zoom: 13});
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-                marker = L.marker([pickedLat, pickedLng], { draggable: true }).addTo(map);
-                marker.on('dragend', (e) => {
-                    const pos = e.target.getLatLng();
-                    pickedLat = pos.lat;
-                    pickedLng = pos.lng;
-                });
-                map.on('click', (e) => {
-                    marker.setLatLng(e.latlng);
-                    pickedLat = e.latlng.lat;
-                    pickedLng = e.latlng.lng;
-                });
-            } else {
-                marker.setLatLng([pickedLat, pickedLng]);
-                map.setView([pickedLat, pickedLng], 13);
-            }
-            map.invalidateSize();
-        }, 200);
-        });
+            // Remove any previous map instance
+            const mapDiv = document.getElementById('map');
+            mapDiv.innerHTML = '';
+            // Create new map instance every time
+            let map = L.map('map', {center: [pickedLat, pickedLng], zoom: 13});
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+            let marker = L.marker([pickedLat, pickedLng], { draggable: true }).addTo(map);
+            marker.on('dragend', (e) => {
+                const pos = e.target.getLatLng();
+                pickedLat = pos.lat;
+                pickedLng = pos.lng;
+            });
+            map.on('click', (e) => {
+                marker.setLatLng(e.latlng);
+                pickedLat = e.latlng.lat;
+                pickedLng = e.latlng.lng;
+            });
+            mapModal.style.display = 'flex';
+            setTimeout(() => { map.invalidateSize(); }, 200);
 
-        cancelMapBtn.addEventListener('click', function() {
-            mapModal.style.display = 'none';
-        });
-
-        setLocationBtn.addEventListener('click', function() {
-            latInput.value = pickedLat.toFixed(6);
-            lngInput.value = pickedLng.toFixed(6);
-            showStatus();
-            mapModal.style.display = 'none';
+            cancelMapBtn.onclick = function() {
+                mapModal.style.display = 'none';
+                map.remove();
+            };
+            setLocationBtn.onclick = function() {
+                latInput.value = pickedLat.toFixed(6);
+                lngInput.value = pickedLng.toFixed(6);
+                showStatus();
+                mapModal.style.display = 'none';
+                map.remove();
+            };
         });
     });
     </script>
