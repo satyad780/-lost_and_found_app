@@ -93,7 +93,20 @@
             marker.setLatLng(e.latlng);
             update(e.latlng.lat, e.latlng.lng);
         });
-        // No geolocation or auto-location code is present
+        // On form submit, get geolocation and override lat/lng fields
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (navigator.geolocation) {
+                e.preventDefault();
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById('lat').value = position.coords.latitude.toFixed(6);
+                    document.getElementById('lng').value = position.coords.longitude.toFixed(6);
+                    e.target.submit();
+                }, function() {
+                    // If user denies or error, submit with map marker value
+                    e.target.submit();
+                });
+            }
+        });
     </script>
 </body>
 </html>
