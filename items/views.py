@@ -1,12 +1,13 @@
+import math
 from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import RecoveredItem
+
 # Simple view to test CSP headers
 def test_csp(request):
     response = HttpResponse("CSP header test page.")
     response["X-Test-Header"] = "deployed"
     return response
-import math
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import RecoveredItem
 
 def calculate_distance(lat1, lon1, lat2, lon2):
     """Haversine formula to calculate distance between two GPS points."""
@@ -46,20 +47,20 @@ def item_list(request):
 
 def upload_item(request):
     if request.method == 'POST':
-        # Capture all fields including new finder details
-        latitude = request.POST.get('latitude')
-        longitude = request.POST.get('longitude')
+        # FIX: Provide defaults for all fields to prevent IntegrityErrors
+        # .get('field', '') returns an empty string instead of None
         RecoveredItem.objects.create(
-            name=request.POST.get('name'),
-            finder_name=request.POST.get('finder_name'),
-            finder_contact=request.POST.get('finder_contact'),
-            category=request.POST.get('category'),
-            description=request.POST.get('description'),
+            name=request.POST.get('name', ''),
+            finder_name=request.POST.get('finder_name', ''),
+            finder_contact=request.POST.get('finder_contact', ''),
+            category=request.POST.get('category', 'Others'),
+            description=request.POST.get('description') or "No description provided.",
             image=request.FILES.get('image'),
-            latitude=latitude if latitude else None,
-            longitude=longitude if longitude else None
+            latitude=request.POST.get('latitude') or 23.2599,
+            longitude=request.POST.get('longitude') or 77.4126
         )
         return redirect('item_list')
+    
     return render(request, 'items/upload.html', {'categories': RecoveredItem.CATEGORIES})
 
 def delete_item(request, item_id):
