@@ -4,149 +4,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Item</title>
-    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=3">
+    <title>Report Found Item</title>
+    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=5">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #map {
-            height: 300px !important;
-            min-height: 200px !important;
-            background: #222 url('https://tile.openstreetmap.org/0/0/0.png') center center no-repeat !important;
-            border: 3px solid red !important;
-            border-radius: 8px !important;
-            margin-top: 10px !important;
-            display: block !important;
-            z-index: 1000 !important;
+        #map { 
+            height: 350px; 
+            width: 100%;
+            background: #111; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            margin-top: 10px;
         }
+        .form-container { max-width: 600px; margin: 40px auto; }
     </style>
 </head>
 <body>
     <aside class="sidebar">
         <h1>📍 TRACKER</h1>
-        <nav class="nav-links"><a href="/">Dashboard</a></nav>
+        <nav class="nav-links">
+            <a href="{% url 'item_list' %}">← Dashboard</a>
+        </nav>
     </aside>
 
     <main>
         <div class="form-container">
-            <h1 style="margin-bottom: 10px;">Report Found Item</h1>
-            <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px;">Fill in the details and mark the location on the map.</p>
+            <h1>Report Found Item</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Fill in the details and mark the location on the map.</p>
             
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
+                
                 <div class="form-group">
-                    <label>What did you find?</label>
+                    <label>WHAT DID YOU FIND?</label>
                     <input type="text" name="name" class="form-control" placeholder="e.g. Black Wallet" required>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>Your Name</label>
-                        <input type="text" name="finder_name" class="form-control" placeholder="Name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone / Contact</label>
-                        <input type="tel" name="finder_contact" class="form-control" placeholder="Phone" required>
-                    </div>
+                <div class="form-group">
+                    <label>YOUR NAME</label>
+                    <input type="text" name="finder_name" class="form-control" placeholder="Name" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Category</label>
+                    <label>PHONE / CONTACT</label>
+                    <input type="tel" name="finder_contact" class="form-control" placeholder="Phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label>CATEGORY</label>
                     <select name="category" class="form-control" required>
-                        {% for v, l in categories %}<option value="{{ v }}">{{ l }}</option>{% endfor %}
+                        {% for v, l in categories %}
+                            <option value="{{ v }}">{{ l }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
-
                 <div class="form-group">
-                    <label>Location</label>
-                    <button type="button" id="openMapBtn" class="btn btn-secondary" style="margin-bottom:10px;">Set Location</button>
-
-                <div class="form-group">
-                    <label>Location</label>
-                    <button type="button" id="openMapBtn" class="btn btn-secondary" style="margin-bottom:10px;">Set Location</button>
-                    <input type="hidden" id="lat" name="latitude">
-                    <input type="hidden" id="lng" name="longitude">
-                    <div id="locationStatus" style="font-size:12px;color:var(--text-muted);"></div>
-                    <div id="locationSetMsg" style="font-size:13px;color:#22c55e;margin-top:4px;display:none;">Location set!</div>
-                    <!-- Modal for map -->
-                    <div id="mapModal" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
-                        <div style="background:#181818;padding:24px 16px 16px 16px;border-radius:12px;max-width:420px;width:90vw;box-shadow:0 8px 32px #000;position:relative;">
-                            <h3 style="margin-top:0;margin-bottom:10px;font-size:18px;">Pick Location</h3>
-                            <div id="map" style="height:300px;width:100%;border-radius:8px;"></div>
-                            <div style="display:flex;justify-content:flex-end;margin-top:12px;gap:8px;">
-                                <button type="button" id="cancelMapBtn" class="btn btn-secondary">Cancel</button>
-                                <button type="button" id="setLocationBtn" class="btn btn-primary">Set Location</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                    <label>Item Image</label>
-                    <input type="file" name="image" class="form-control" required style="padding: 10px;">
+                    <label>DESCRIPTION</label>
+                    <textarea name="description" class="form-control" placeholder="Additional details..."></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Submit Report</button>
+                <div class="form-group">
+                    <label>LOCATION (Drag the pin to the exact spot)</label>
+                    <div id="map"></div>
+                    <input type="hidden" id="lat" name="latitude" value="23.2599">
+                    <input type="hidden" id="lng" name="longitude" value="77.4126">
+                </div>
+
+                <div class="form-group">
+                    <label>ITEM IMAGE</label>
+                    <input type="file" name="image" class="form-control" style="padding: 10px;" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">SUBMIT REPORT</button>
             </form>
         </div>
     </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const openMapBtn = document.getElementById('openMapBtn');
-        const mapModal = document.getElementById('mapModal');
-        const cancelMapBtn = document.getElementById('cancelMapBtn');
-        const setLocationBtn = document.getElementById('setLocationBtn');
-        const latInput = document.getElementById('lat');
-        const lngInput = document.getElementById('lng');
-        const locationStatus = document.getElementById('locationStatus');
-        const locationSetMsg = document.getElementById('locationSetMsg');
-        let pickedLat = 23.2599, pickedLng = 77.4126;
+        // Initialize map centered on a default location
+        const map = L.map('map').setView([23.2599, 77.4126], 13);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
 
-        function showStatus() {
-            if (latInput.value && lngInput.value) {
-                locationStatus.textContent = `Location set: (${latInput.value}, ${lngInput.value})`;
-                locationSetMsg.style.display = '';
-            } else {
-                locationStatus.textContent = 'No location set.';
-                locationSetMsg.style.display = 'none';
-            }
+        // Single draggable marker
+        let marker = L.marker([23.2599, 77.4126], {
+            draggable: true
+        }).addTo(map);
+
+        function updateCoords(lat, lng) {
+            document.getElementById('lat').value = lat.toFixed(6);
+            document.getElementById('lng').value = lng.toFixed(6);
         }
-        showStatus();
 
-        openMapBtn.addEventListener('click', function() {
-            // Remove any previous map instance
-            const mapDiv = document.getElementById('map');
-            mapDiv.innerHTML = '';
-            // Create new map instance every time
-            let map = L.map('map', {center: [pickedLat, pickedLng], zoom: 13});
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-            let marker = L.marker([pickedLat, pickedLng], { draggable: true }).addTo(map);
-            marker.on('dragend', (e) => {
-                const pos = e.target.getLatLng();
-                pickedLat = pos.lat;
-                pickedLng = pos.lng;
-            });
-            map.on('click', (e) => {
-                marker.setLatLng(e.latlng);
-                pickedLat = e.latlng.lat;
-                pickedLng = e.latlng.lng;
-            });
-            mapModal.style.display = 'flex';
-            setTimeout(() => { map.invalidateSize(); }, 200);
-
-            cancelMapBtn.onclick = function() {
-                mapModal.style.display = 'none';
-                map.remove();
-            };
-            setLocationBtn.onclick = function() {
-                latInput.value = pickedLat.toFixed(6);
-                lngInput.value = pickedLng.toFixed(6);
-                showStatus();
-                mapModal.style.display = 'none';
-                map.remove();
-            };
+        marker.on('dragend', function(e) {
+            const pos = marker.getLatLng();
+            updateCoords(pos.lat, pos.lng);
         });
-    });
+
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            updateCoords(e.latlng.lat, e.latlng.lng);
+        });
+
+        // Try to center on user's current location automatically
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                map.setView([userLat, userLng], 15);
+                marker.setLatLng([userLat, userLng]);
+                updateCoords(userLat, userLng);
+            });
+        }
     </script>
 </body>
 </html>
