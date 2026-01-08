@@ -5,18 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Found Item</title>
-    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=6">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         #map { 
-            height: 350px; 
+            height: 400px; 
             width: 100%;
             background: #111; 
             border: 1px solid var(--border); 
-            border-radius: 8px; 
+            border-radius: 12px; 
             margin-top: 10px;
+            cursor: crosshair;
         }
-        .form-container { max-width: 600px; margin: 40px auto; }
+        .form-container { max-width: 650px; margin: 40px auto; }
+        .map-instruction {
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
@@ -30,95 +38,116 @@
     <main>
         <div class="form-container">
             <h1>Report Found Item</h1>
-            <p style="color: var(--text-muted); margin-bottom: 30px;">Fill in the details and mark the location on the map.</p>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Provide item details and <b>manually</b> mark the discovery spot on the map.</p>
             
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 
-                <div class="form-group">
-                    <label>WHAT DID YOU FIND?</label>
-                    <input type="text" name="name" class="form-control" placeholder="e.g. Black Wallet" required>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Item Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Blue Backpack" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="category" class="form-control" required>
+                            {% for v, l in categories %}
+                                <option value="{{ v }}">{{ l }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" name="finder_name" class="form-control" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone / Contact</label>
+                        <input type="tel" name="finder_contact" class="form-control" placeholder="Mobile Number" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label>YOUR NAME</label>
-                    <input type="text" name="finder_name" class="form-control" placeholder="Name" required>
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" placeholder="Where exactly was it? Any identifying marks?"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label>PHONE / CONTACT</label>
-                    <input type="tel" name="finder_contact" class="form-control" placeholder="Phone" required>
-                </div>
-
-                <div class="form-group">
-                    <label>CATEGORY</label>
-                    <select name="category" class="form-control" required>
-                        {% for v, l in categories %}
-                            <option value="{{ v }}">{{ l }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>DESCRIPTION</label>
-                    <textarea name="description" class="form-control" placeholder="Additional details..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>LOCATION (Drag the pin to the exact spot)</label>
+                    <p class="map-instruction">📍 Click map or drag pin to set location</p>
                     <div id="map"></div>
                     <input type="hidden" id="lat" name="latitude" value="23.2599">
                     <input type="hidden" id="lng" name="longitude" value="77.4126">
                 </div>
 
                 <div class="form-group">
-                    <label>ITEM IMAGE</label>
+                    <label>Item Photo</label>
                     <input type="file" name="image" class="form-control" style="padding: 10px;" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">SUBMIT REPORT</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; padding: 16px;">SUBMIT REPORT</button>
             </form>
         </div>
     </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialize map centered on a default location
-        const map = L.map('map').setView([23.2599, 77.4126], 13);
+        // 1. Initial State (Default: Bhopal, India)
+        let lat = 23.2599;
+        let lng = 77.4126;
+        let isManual = false; // Tracks if user has manually moved the pin
+
+        const map = L.map('map').setView([lat, lng], 13);
         
+        // 2. Dark Theme Tiles
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© OpenStreetMap'
+            attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
-        // Single draggable marker
-        let marker = L.marker([23.2599, 77.4126], {
-            draggable: true
+        // 3. Create the Marker
+        let marker = L.marker([lat, lng], {
+            draggable: true,
+            riseOnHover: true
         }).addTo(map);
 
-        function updateCoords(lat, lng) {
-            document.getElementById('lat').value = lat.toFixed(6);
-            document.getElementById('lng').value = lng.toFixed(6);
+        // 4. Update Function
+        function updateInputs(newLat, newLng) {
+            document.getElementById('lat').value = newLat.toFixed(6);
+            document.getElementById('lng').value = newLng.toFixed(6);
         }
 
+        // 5. MANUAL OVERRIDE: On Drag
         marker.on('dragend', function(e) {
-            const pos = marker.getLatLng();
-            updateCoords(pos.lat, pos.lng);
+            isManual = true; // Block further auto-location updates
+            const position = marker.getLatLng();
+            updateInputs(position.lat, position.lng);
         });
 
+        // 6. MANUAL OVERRIDE: On Map Click
         map.on('click', function(e) {
+            isManual = true; // Block further auto-location updates
             marker.setLatLng(e.latlng);
-            updateCoords(e.latlng.lat, e.latlng.lng);
+            updateInputs(e.latlng.lat, e.latlng.lng);
         });
 
-        // Try to center on user's current location automatically
+        // 7. AUTO-LOCATION (Initial Only)
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const userLat = position.coords.latitude;
-                const userLng = position.coords.longitude;
-                map.setView([userLat, userLng], 15);
-                marker.setLatLng([userLat, userLng]);
-                updateCoords(userLat, userLng);
-            });
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // Only update if the user hasn't touched the map yet
+                    if (!isManual) {
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        map.setView([userLat, userLng], 15);
+                        marker.setLatLng([userLat, userLng]);
+                        updateInputs(userLat, userLng);
+                    }
+                },
+                (error) => {
+                    console.log("Geolocation denied or unavailable.");
+                }
+            );
         }
     </script>
 </body>
