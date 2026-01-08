@@ -7,141 +7,103 @@
     <title>Report Found Item</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <link rel="stylesheet" href="{% static 'items/css/style.css' %}?v=8">
+    <link rel="stylesheet" href="{% static 'items/css/style.css' %}">
 
     <style>
-        /* CRITICAL: The map WILL NOT show up without a forced height */
-        #map { 
+        /* This forces the map to be visible */
+        #map-canvas { 
             height: 400px !important; 
-            width: 100%;
-            background: #111; 
-            border: 1px solid #333; 
-            border-radius: 12px; 
+            width: 100%; 
+            background: #222; 
+            border-radius: 8px; 
             margin: 15px 0;
-            cursor: crosshair;
+            border: 2px solid #444;
         }
-        .form-container { max-width: 650px; margin: 40px auto; }
-        .map-label {
-            font-size: 13px;
-            color: #10b981;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
+        .form-box { max-width: 600px; margin: 0 auto; padding: 20px; color: white; }
+        .hint { color: #10b981; font-weight: bold; display: block; margin-bottom: 5px; }
     </style>
 </head>
-<body>
-    <aside class="sidebar">
-        <h1>📍 TRACKER</h1>
-        <nav class="nav-links">
-            <a href="{% url 'item_list' %}">← Dashboard</a>
-        </nav>
-    </aside>
-
+<body style="background: #000;">
     <main>
-        <div class="form-container">
+        <div class="form-box">
             <h1>Report Found Item</h1>
-            <p style="color: #737373; margin-bottom: 30px;">Mark the exact spot by dragging the pin or clicking the map.</p>
-            
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 
-                <div class="form-group">
-                    <label>ITEM NAME</label>
-                    <input type="text" name="name" class="form-control" placeholder="e.g. Blue Backpack" required>
-                </div>
+                <label>Item Name</label>
+                <input type="text" name="name" class="form-control" required>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="form-group">
-                        <label>YOUR NAME</label>
-                        <input type="text" name="finder_name" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>CONTACT NUMBER</label>
-                        <input type="tel" name="finder_contact" class="form-control" required>
-                    </div>
-                </div>
+                <label>Your Name</label>
+                <input type="text" name="finder_name" class="form-control" required>
 
-                <div class="form-group">
-                    <label>CATEGORY</label>
-                    <select name="category" class="form-control">
-                        {% for v, l in categories %}
-                            <option value="{{ v }}">{{ l }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <label>Phone Number</label>
+                <input type="text" name="finder_contact" class="form-control" required>
 
-                <div class="form-group">
-                    <label>DESCRIPTION</label>
-                    <textarea name="description" class="form-control" placeholder="Describe the item..." required></textarea>
-                </div>
+                <label>Category</label>
+                <select name="category" class="form-control">
+                    {% for v, l in categories %}
+                        <option value="{{ v }}">{{ l }}</option>
+                    {% endfor %}
+                </select>
 
-                <div class="form-group">
-                    <label class="map-label">📍 Set Discovery Location</label>
-                    <div id="map"></div>
-                    <input type="hidden" id="lat" name="latitude" value="23.2599">
-                    <input type="hidden" id="lng" name="longitude" value="77.4126">
-                </div>
+                <label>Description</label>
+                <textarea name="description" class="form-control" required></textarea>
 
-                <div class="form-group">
-                    <label>ITEM PHOTO</label>
-                    <input type="file" name="image" class="form-control" required>
-                </div>
+                <span class="hint">📍 Click map or drag pin to set location</span>
+                <div id="map-canvas"></div>
+                
+                <input type="hidden" name="latitude" id="lat-input" value="23.2599">
+                <input type="hidden" name="longitude" id="lng-input" value="77.4126">
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; margin-top: 10px;">SUBMIT REPORT</button>
+                <label>Photo</label>
+                <input type="file" name="image" class="form-control" required>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; margin-top: 20px;">SUBMIT REPORT</button>
             </form>
         </div>
     </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let initialLat = 23.2599;
-            let initialLng = 77.4126;
-            let isManual = false;
+        // Start script only when window is fully loaded
+        window.addEventListener('load', function() {
+            var bplLat = 23.2599;
+            var bplLng = 77.4126;
 
-            // 1. Initialize Map
-            const map = L.map('map').setView([initialLat, initialLng], 13);
+            // Init Map
+            var myMap = L.map('map-canvas').setView([bplLat, bplLng], 13);
 
-            // 2. Add Tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
+            // Add Tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(myMap);
 
-            // 3. Add Draggable Marker
-            let marker = L.marker([initialLat, initialLng], {
-                draggable: true
-            }).addTo(map);
+            // Add Marker
+            var myMarker = L.marker([bplLat, bplLng], {draggable: true}).addTo(myMap);
 
-            function updateFields(lt, lg) {
-                document.getElementById('lat').value = lt.toFixed(6);
-                document.getElementById('lng').value = lg.toFixed(6);
+            function updateInputs(lt, lg) {
+                document.getElementById('lat-input').value = lt;
+                document.getElementById('lng-input').value = lg;
             }
 
-            // 4. Manual Update: Dragging
-            marker.on('dragend', function() {
-                isManual = true;
-                const pos = marker.getLatLng();
-                updateFields(pos.lat, pos.lng);
+            // Click Map
+            myMap.on('click', function(e) {
+                myMarker.setLatLng(e.latlng);
+                updateInputs(e.latlng.lat, e.latlng.lng);
             });
 
-            // 5. Manual Update: Clicking Map
-            map.on('click', function(e) {
-                isManual = true;
-                marker.setLatLng(e.latlng);
-                updateFields(e.latlng.lat, e.latlng.lng);
+            // Drag Pin
+            myMarker.on('dragend', function(e) {
+                var p = myMarker.getLatLng();
+                updateInputs(p.lat, p.lng);
             });
 
-            // 6. Automatic Location (Initial)
+            // Auto-detect
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    if (!isManual) {
-                        const { latitude, longitude } = position.coords;
-                        map.setView([latitude, longitude], 15);
-                        marker.setLatLng([latitude, longitude]);
-                        updateFields(latitude, longitude);
-                    }
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    var uLat = pos.coords.latitude;
+                    var uLng = pos.coords.longitude;
+                    myMap.setView([uLat, uLng], 15);
+                    myMarker.setLatLng([uLat, uLng]);
+                    updateInputs(uLat, uLng);
                 });
             }
         });

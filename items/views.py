@@ -19,8 +19,6 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 
 def item_list(request):
     items = RecoveredItem.objects.all().order_by('-created_at')
-    
-    # Search and Category Filtering
     q = request.GET.get('q')
     cat = request.GET.get('category')
     
@@ -29,7 +27,6 @@ def item_list(request):
     if cat:
         items = items.filter(category=cat)
     
-    # User-to-Item Distance Calculation
     u_lat = request.GET.get('lat')
     u_lng = request.GET.get('lng')
     if u_lat and u_lng:
@@ -47,17 +44,25 @@ def item_list(request):
 
 def upload_item(request):
     if request.method == 'POST':
-        # FIX: Provide defaults for all fields to prevent IntegrityErrors
-        # .get('field', '') returns an empty string instead of None
+        # FIX: Ensure NO field is None. If empty, it uses the string after 'or'
+        name = request.POST.get('name') or "Unnamed Item"
+        f_name = request.POST.get('finder_name') or "Anonymous"
+        f_contact = request.POST.get('finder_contact') or "No Contact"
+        cat = request.POST.get('category') or "Other"
+        desc = request.POST.get('description') or "No description provided."
+        lat = request.POST.get('latitude') or 23.2599
+        lng = request.POST.get('longitude') or 77.4126
+        img = request.FILES.get('image')
+
         RecoveredItem.objects.create(
-            name=request.POST.get('name', ''),
-            finder_name=request.POST.get('finder_name', ''),
-            finder_contact=request.POST.get('finder_contact', ''),
-            category=request.POST.get('category', 'Others'),
-            description=request.POST.get('description') or "No description provided.",
-            image=request.FILES.get('image'),
-            latitude=request.POST.get('latitude') or 23.2599,
-            longitude=request.POST.get('longitude') or 77.4126
+            name=name,
+            finder_name=f_name,
+            finder_contact=f_contact,
+            category=cat,
+            description=desc,
+            image=img,
+            latitude=float(lat),
+            longitude=float(lng)
         )
         return redirect('item_list')
     
